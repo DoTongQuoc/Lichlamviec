@@ -4,7 +4,16 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>☕ Lịch làm việc Ha My</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <!-- html2canvas chỉ load khi bấm Lưu ảnh — không làm chậm app -->
+  <script>
+    window._loadH2C = () => new Promise((res,rej) => {
+      if (window.html2canvas) return res();
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -102,16 +111,22 @@
     .s-name { font-size:13px; font-weight:500; }
     .s-meta { font-size:11px; color:var(--text2); margin-top:2px; }
 
-    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:200; padding:1rem; }
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:flex-end; justify-content:center; z-index:200; padding:0; }
     .overlay.open { display:flex; }
-    .modal { background:var(--bg); border-radius:14px; border:1px solid var(--border); padding:1.5rem; width:100%; max-width:320px; }
-    .modal h3 { font-size:15px; font-weight:600; margin-bottom:1rem; }
-    .field { margin-bottom:10px; }
-    .field label { display:block; font-size:12px; color:var(--text2); margin-bottom:4px; }
-    .field input, .field select { width:100%; padding:8px 10px; border-radius:6px; border:1px solid var(--border2); font-size:13px; font-family:inherit; color:var(--text); background:var(--bg); }
-    .field-row { display:flex; gap:8px; }
+    .modal { background:var(--bg); border-radius:20px 20px 0 0; border:1px solid var(--border); padding:1.5rem 1.5rem 2rem; width:100%; max-width:480px; animation:slideUp .2s ease; }
+    @media (min-width:600px) {
+      .overlay { align-items:center; padding:1rem; }
+      .modal { border-radius:14px; max-width:340px; animation:none; }
+    }
+    @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+    .modal h3 { font-size:16px; font-weight:600; margin-bottom:1rem; }
+    .field { margin-bottom:12px; }
+    .field label { display:block; font-size:13px; color:var(--text2); margin-bottom:5px; }
+    .field input, .field select { width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border2); font-size:15px; font-family:inherit; color:var(--text); background:var(--bg); -webkit-appearance:none; }
+    .field-row { display:flex; gap:10px; }
     .field-row .field { flex:1; }
-    .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:1rem; }
+    .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:1.25rem; }
+    .modal-actions .btn { flex:1; padding:12px; font-size:14px; text-align:center; border-radius:10px; }
 
     .export-modal { background:var(--bg); border-radius:14px; border:1px solid var(--border); padding:1.5rem; width:100%; max-width:700px; max-height:90vh; overflow-y:auto; }
     .export-modal h3 { font-size:15px; font-weight:600; margin-bottom:1rem; }
@@ -245,8 +260,8 @@
 // ================================================================
 // 🔧 CHỈ CẦN ĐIỀN 2 GIÁ TRỊ NÀY
 // ================================================================
-const JSONBIN_KEY    = '$2a$10$8CxIKg29mt4Ue4vWcLG2G.hEXmZGM0XeBo8eOrwMttHS2Fgy3fWOG';   // $2b$10$...
-const JSONBIN_BIN_ID = '69ecb24736566621a8ee07b7';    // 6824abc...
+const JSONBIN_KEY    = 'DIEN_API_KEY_CUA_BAN';   // $2b$10$...
+const JSONBIN_BIN_ID = 'DIEN_BIN_ID_CUA_BAN';    // 6824abc...
 // ================================================================
 
 const CONFIGURED = !JSONBIN_KEY.startsWith('DIEN') && !JSONBIN_BIN_ID.startsWith('DIEN');
@@ -437,13 +452,21 @@ async function removeAssign(k,sh,idx) {
 
 function openAssignModal(k,sh) {
   assignTarget={k,sh};
+  // Reset giờ về mặc định của ca
   const def=SH_DEF[sh];
   document.getElementById('inp-from').value=def.from;
   document.getElementById('inp-to').value=def.to;
+  // Xóa danh sách cũ, chỉ hiện nhân viên CHƯA có trong ca này
   const already=(schedule[k]?.[sh]||[]).map(x=>x.staffId);
+  const available=staff.filter(s=>!already.includes(s.id));
   const sel=document.getElementById('inp-assign-staff');
-  sel.innerHTML=staff.filter(s=>!already.includes(s.id)).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-  if (!sel.options.length){alert('Tất cả nhân viên đã có trong ca này!');return;}
+  sel.innerHTML=''; // xóa sạch trước
+  if (!available.length){alert('Tất cả nhân viên đã có trong ca này!');return;}
+  available.forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s.id; opt.textContent=s.name;
+    sel.appendChild(opt);
+  });
   openModal('modal-assign');
 }
 
@@ -519,16 +542,24 @@ function switchTab(tab,el){
   document.getElementById('view-staff').style.display=tab==='staff'?'block':'none';
   if(tab==='month')renderMonth(); if(tab==='staff')renderStaff();
 }
-function openModal(id){document.getElementById(id).classList.add('open');}
+function openModal(id){
+  if(id==='modal-staff') document.getElementById('inp-name').value='';
+  document.getElementById(id).classList.add('open');
+}
 function closeModals(){document.querySelectorAll('.overlay').forEach(e=>e.classList.remove('open'));}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModals();}));
 
 // ── EXPORT ẢNH ──
-function openExport() {
+async function openExport() {
   openModal('modal-export');
   document.getElementById('loading-msg').style.display='block';
   document.getElementById('preview-img').style.display='none';
   document.getElementById('download-link').style.display='none';
+  // Load html2canvas chỉ khi cần (lần đầu mất ~1s, lần sau dùng cache)
+  try { await window._loadH2C(); } catch(e) {
+    document.getElementById('loading-msg').textContent='Không tải được thư viện ảnh, kiểm tra mạng!';
+    return;
+  }
   const days=getWeekDays(weekOff), today=new Date(); today.setHours(0,0,0,0);
   const wrap=document.getElementById('print-canvas-wrap'); wrap.innerHTML='';
   const tbl=document.createElement('div');
