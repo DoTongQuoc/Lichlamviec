@@ -267,7 +267,7 @@ const H_GET      = { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' };
 const H_PUT      = { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY };
 const H_META     = { 'X-Master-Key': JSONBIN_KEY };
 
-const DAYS   = ['CN - ','T2 - ','T3 - ','T4 - ','T5 - ','T6 - ','T7 - '];
+const DAYS   = ['CN ','T2 ','T3 ','T4 ','T5 ','T6 ','T7 '];
 const SHIFTS = ['morning','afternoon','evening'];
 const SH_LABEL = { morning:'Sáng', afternoon:'Chiều', evening:'Tối' };
 const SH_TIME  = { morning:'6:00–12:00', afternoon:'12:00–18:00', evening:'18:00–22:30' };
@@ -451,7 +451,10 @@ function renderWeek() {
         const chip=document.createElement('div'); chip.className='chip '+sh;
         chip.innerHTML=`<div class="chip-top"><span class="chip-name">${s.name.split(' ').pop()}</span>
           <button class="chip-rm" onclick="removeAssign('${k}','${sh}',${si})">✕</button></div>
-          ${slot.from!==def.from||slot.to!==def.to?`<div class="chip-time">${slot.from}–${slot.to}</div>`:''}`;
+		  ${slot.from!==def.from||slot.to!==def.to
+			? `<div class="chip-time">${formatTime24(slot.from)}–${formatTime24(slot.to)}</div>`
+			: ''
+		}
         cell.appendChild(chip);
       });
       const a=document.createElement('button'); a.className='add-slot'; a.textContent='+ Thêm';
