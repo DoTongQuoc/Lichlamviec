@@ -7,46 +7,34 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- ✅ Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    // ============================================================
-    // 🔧 THAY THẾ PHẦN NÀY bằng config Firebase của bạn
-    //    (Xem hướng dẫn bên dưới để lấy config)
-    // ============================================================
-	// Import the functions you need from the SDKs you need
-	import { initializeApp } from "firebase/app";
-	// TODO: Add SDKs for Firebase products that you want to use
-	// https://firebase.google.com/docs/web/setup#available-libraries
-	
-	// Your web app's Firebase configuration
-	const firebaseConfig = {
-	apiKey: "AIzaSyDkEm-K_GcsyZ-uT4SiNqm4bzEA4S-Y4Ns",
-	authDomain: "cafe-hammy-schedule.firebaseapp.com",
-	databaseURL: "https://cafe-hammy-schedule-default-rtdb.asia-southeast1.firebasedatabase.app",
-	projectId: "cafe-hammy-schedule",
-	storageBucket: "cafe-hammy-schedule.firebasestorage.app",
-	messagingSenderId: "163825408740",
-	appId: "1:163825408740:web:ef7d57d0e405fc32c2aaf1"
-	};
+  const firebaseConfig = {
+    apiKey: "AIzaSyDkEm-K_GcsyZ-uT4SiNqm4bzEA4S-Y4Ns",
+    authDomain: "cafe-hammy-schedule.firebaseapp.com",
+    databaseURL: "https://cafe-hammy-schedule-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "cafe-hammy-schedule",
+    storageBucket: "cafe-hammy-schedule.firebasestorage.app",
+    messagingSenderId: "163825408740",
+    appId: "1:163825408740:web:ef7d57d0e405fc32c2aaf1"
+  };
 
-	// Initialize Firebase
-	const app = initializeApp(firebaseConfig);
-    // ============================================================
+  // ✅ CHỈ 1 LẦN
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getDatabase(app);
+  // expose
+  window._fbDb  = db;
+  window._fbRef = ref;
+  window._fbSet = set;
+  window._fbOnValue  = onValue;
+  window._fbGet = get;
+  window._fbReady = true;
 
-    // Expose để code bên dưới dùng
-    window._fbDb  = db;
-    window._fbRef = ref;
-    window._fbSet = set;
-    window._fbOnValue  = onValue;
-    window._fbGet = get;
-    window._fbReady = true;
-    document.dispatchEvent(new Event('firebase-ready'));
-  </script>
+  document.dispatchEvent(new Event('firebase-ready'));
+</script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
