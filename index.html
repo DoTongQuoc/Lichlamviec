@@ -451,7 +451,7 @@ function renderWeek() {
         const chip=document.createElement('div'); chip.className='chip '+sh;
         chip.innerHTML=`<div class="chip-top"><span class="chip-name">${s.name.split(' ').pop()}</span>
           <button class="chip-rm" onclick="removeAssign('${k}','${sh}',${si})">✕</button></div>
-          ${slot.from!==def.from||slot.to!==def.to?`<div class="chip-time">${slot.from}–${slot.to}</div>`:''}`;
+          ${slot.from!==def.from||slot.to!==def.to?`<div class="chip-time">${formatTime24(slot.from)}–${formatTime24(slot.to)}</div>`:''}`;
         cell.appendChild(chip);
       });
       const a=document.createElement('button'); a.className='add-slot'; a.textContent='+ Thêm';
