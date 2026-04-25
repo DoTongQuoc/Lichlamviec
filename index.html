@@ -451,7 +451,7 @@ function renderWeek() {
         const chip=document.createElement('div'); chip.className='chip '+sh;
         chip.innerHTML=`<div class="chip-top"><span class="chip-name">${s.name.split(' ').pop()}</span>
           <button class="chip-rm" onclick="removeAssign('${k}','${sh}',${si})">✕</button></div>
-          ${slot.from!==def.from||slot.to!==def.to?`<div class="chip-time">${formatTime24(slot.from)}–${formatTime24(slot.to)}</div>`:''}`;
+          ${slot.from!==def.from||slot.to!==def.to?`<div class="chip-time">${slot.from}–${slot.to}</div>`:''}`;
         cell.appendChild(chip);
       });
       const a=document.createElement('button'); a.className='add-slot'; a.textContent='+ Thêm';
@@ -580,8 +580,8 @@ async function openExport() {
   const tbl=document.createElement('div');
   tbl.style.cssText='width:900px;background:#fff;font-family:Arial,sans-serif;overflow:hidden;';
   const sc={morning:{bg:'#FAEEDA',tx:'#854F0B',lBg:'#fdf0d5',rBg:'#fffbf5'},afternoon:{bg:'#EAF3DE',tx:'#3B6D11',lBg:'#dff0c5',rBg:'#f7fbf2'},evening:{bg:'#E6F1FB',tx:'#185FA5',lBg:'#c8e0f8',rBg:'#f4f9ff'}};
-  let h=`<div style="background:#1a1a1a;color:#fff;padding:16px 20px"><div style="font-size:17px;font-weight:700">☕ Lịch làm việc quán cafe Ha My</div>
-    <div style="font-size:12px;color:#aaa;margin-top:4px">Tuần: ${fmtDate(days[0])} – ${fmtDate(days[6])} | ${new Date().toLocaleString('vi-VN')}</div></div>
+  let h=`<div style="background:#1a1a1a;color:#fff;padding:16px 20px"><div style="font-size:17px;font-weight:700">☕ Lịch làm việc Coffee Hà My</div>
+    <div style="font-size:12px;color:#aaa;margin-top:4px">Tuần: ${fmtDate(days[0])} – ${fmtDate(days[6])}</div></div>
     <div style="display:flex;gap:20px;padding:10px 20px;background:#f8f8f8;border-bottom:1px solid #e0e0e0;font-size:11px;color:#555">
       <span>🟠 Sáng 6–12h</span><span>🟢 Chiều 12–18h</span><span>🔵 Tối 18–22h30</span></div>
     <table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr>
