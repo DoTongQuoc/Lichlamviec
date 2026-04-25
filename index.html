@@ -3,9 +3,51 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lịch làm việc Quán Cafe Ha my</title>
-  <!-- html2canvas để chụp ảnh -->
+  <title>Lịch làm việc Quán Cafe Ha My</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- ✅ Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // ============================================================
+    // 🔧 THAY THẾ PHẦN NÀY bằng config Firebase của bạn
+    //    (Xem hướng dẫn bên dưới để lấy config)
+    // ============================================================
+	// Import the functions you need from the SDKs you need
+	import { initializeApp } from "firebase/app";
+	// TODO: Add SDKs for Firebase products that you want to use
+	// https://firebase.google.com/docs/web/setup#available-libraries
+	
+	// Your web app's Firebase configuration
+	const firebaseConfig = {
+	apiKey: "AIzaSyDkEm-K_GcsyZ-uT4SiNqm4bzEA4S-Y4Ns",
+	authDomain: "cafe-hammy-schedule.firebaseapp.com",
+	databaseURL: "https://cafe-hammy-schedule-default-rtdb.asia-southeast1.firebasedatabase.app",
+	projectId: "cafe-hammy-schedule",
+	storageBucket: "cafe-hammy-schedule.firebasestorage.app",
+	messagingSenderId: "163825408740",
+	appId: "1:163825408740:web:ef7d57d0e405fc32c2aaf1"
+	};
+
+	// Initialize Firebase
+	const app = initializeApp(firebaseConfig);
+    // ============================================================
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // Expose để code bên dưới dùng
+    window._fbDb  = db;
+    window._fbRef = ref;
+    window._fbSet = set;
+    window._fbOnValue  = onValue;
+    window._fbGet = get;
+    window._fbReady = true;
+    document.dispatchEvent(new Event('firebase-ready'));
+  </script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -26,13 +68,23 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f0; min-height: 100vh; }
     .container { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
 
+    /* SYNC BANNER */
+    .sync-bar { display: flex; align-items: center; gap: 8px; border-radius: var(--radius); padding: 8px 14px; margin-bottom: 1rem; font-size: 12px; transition: all .3s; }
+    .sync-bar.ok      { background: #e8f5e9; border: 1px solid #a5d6a7; color: #2e7d32; }
+    .sync-bar.syncing { background: #fff8e1; border: 1px solid #ffe082; color: #f57f17; }
+    .sync-bar.error   { background: #fce4ec; border: 1px solid #f48fb1; color: #c62828; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sync-bar.ok      .sync-dot { background: #4caf50; }
+    .sync-bar.syncing .sync-dot { background: #ffc107; animation: pulse .8s ease-in-out infinite; }
+    .sync-bar.error   .sync-dot { background: #f44336; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
     /* TOP BAR */
     .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
     .app-title { font-size: 20px; font-weight: 600; color: var(--text); }
     .app-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
     .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* BUTTONS */
     .btn { padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; font-family: inherit; transition: background .15s; }
     .btn:hover { background: var(--bg2); }
     .btn-primary { background: var(--primary); color: #fff; border-color: transparent; }
@@ -42,19 +94,14 @@
     .btn-export { background: #185FA5; color: #fff; border-color: transparent; }
     .btn-export:hover { background: #1250a0; }
 
-    /* TABS */
     .tabs { display: flex; gap: 4px; background: var(--bg2); border-radius: var(--radius); padding: 4px; margin-bottom: 1.25rem; }
     .tab { flex: 1; padding: 7px 0; text-align: center; font-size: 13px; border-radius: 6px; cursor: pointer; color: var(--text2); border: none; background: transparent; font-family: inherit; }
     .tab.active { background: var(--bg); color: var(--text); font-weight: 500; border: 1px solid var(--border); }
 
-    /* CARD */
     .card { background: var(--bg); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; }
-
-    /* NAV ROW */
     .nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
     .nav-label { font-size: 14px; font-weight: 500; }
 
-    /* LEGEND */
     .legend { display: flex; gap: 16px; margin-bottom: 1rem; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
     .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
@@ -73,20 +120,19 @@
     .sg-cell:last-child { border-right: none; }
     .sg-cell.is-today { background: rgba(24,95,165,0.04); }
 
-    /* CHIPS */
     .chip { border-radius: 4px; padding: 3px 6px; font-size: 11px; font-weight: 500; display: flex; flex-direction: column; gap: 1px; }
     .chip-top { display: flex; align-items: center; justify-content: space-between; gap: 3px; }
     .chip-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .chip-rm { cursor: pointer; opacity: .5; font-size: 10px; background: none; border: none; color: inherit; padding: 0 1px; line-height: 1; font-family: inherit; }
     .chip-rm:hover { opacity: 1; }
     .chip-time { font-size: 10px; opacity: .7; font-weight: 400; }
-    .chip.morning { background: var(--morning-bg); color: var(--morning-tx); }
+    .chip.morning   { background: var(--morning-bg);   color: var(--morning-tx); }
     .chip.afternoon { background: var(--afternoon-bg); color: var(--afternoon-tx); }
-    .chip.evening { background: var(--evening-bg); color: var(--evening-tx); }
+    .chip.evening   { background: var(--evening-bg);   color: var(--evening-tx); }
     .add-slot { font-size: 11px; color: var(--text3); border: 1px dashed var(--border2); border-radius: 4px; padding: 3px 5px; cursor: pointer; background: none; text-align: left; width: 100%; font-family: inherit; }
-    .add-slot:hover { color: var(--text); border-color: var(--border2); background: var(--bg2); }
+    .add-slot:hover { color: var(--text); background: var(--bg2); }
 
-    /* MONTH GRID */
+    /* MONTH */
     .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 1rem; }
     .month-day-hd { text-align: center; font-size: 11px; color: var(--text2); padding: 4px 0; font-weight: 500; }
     .month-day { border: 1px solid var(--border); border-radius: 6px; padding: 6px 5px; min-height: 50px; background: var(--bg); }
@@ -118,7 +164,7 @@
     .field-row .field { flex: 1; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
 
-    /* EXPORT MODAL */
+    /* EXPORT */
     .export-modal { background: var(--bg); border-radius: 14px; border: 1px solid var(--border); padding: 1.5rem; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
     .export-modal h3 { font-size: 15px; font-weight: 600; margin-bottom: 1rem; }
     #preview-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; min-height: 120px; display: flex; align-items: center; justify-content: center; background: var(--bg2); }
@@ -126,16 +172,33 @@
     .loading-msg { font-size: 13px; color: var(--text2); padding: 2rem; text-align: center; }
     .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* PRINT CANVAS (ẩn, chỉ để render) */
     #print-canvas-wrap { position: absolute; left: -9999px; top: 0; }
+
+    /* SETUP NOTICE */
+    .setup-notice { background: #fff3cd; border: 1px solid #ffc107; border-radius: var(--radius); padding: 14px 16px; margin-bottom: 1rem; font-size: 13px; color: #664d03; line-height: 1.6; }
+    .setup-notice strong { display: block; margin-bottom: 6px; font-size: 14px; }
+    .setup-notice code { background: #ffe69c; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 12px; }
   </style>
 </head>
 <body>
 <div class="container">
+
+  <!-- NOTICE: hiện khi chưa config Firebase -->
+  <div class="setup-notice" id="setup-notice">
+    ⚙️ <strong>Cần cấu hình Firebase để dùng chung dữ liệu</strong>
+    Mở file <code>index.html</code>, tìm phần <code>firebaseConfig</code> và thay thế các giá trị <code>THAY_...</code> bằng config từ Firebase Console của bạn.
+    Xem hướng dẫn chi tiết trong file <code>HUONG_DAN_FIREBASE.md</code>.
+  </div>
+
+  <!-- SYNC STATUS -->
+  <div class="sync-bar syncing" id="sync-bar">
+    <div class="sync-dot"></div>
+    <span id="sync-msg">Đang kết nối Firebase...</span>
+  </div>
+
   <div class="topbar">
     <div>
-      <div class="app-title">☕ Lịch làm việc ha my</div>
+      <div class="app-title">☕ Lịch làm việc Ha My</div>
       <div class="app-sub" id="week-sub"></div>
     </div>
     <div class="btn-row">
@@ -187,9 +250,7 @@
       <span class="nav-label" id="month-label"></span>
       <button class="btn" onclick="nextMonth()">Tháng sau →</button>
     </div>
-    <div class="card">
-      <div class="month-grid" id="month-grid"></div>
-    </div>
+    <div class="card"><div class="month-grid" id="month-grid"></div></div>
   </div>
 
   <!-- STAFF -->
@@ -247,30 +308,77 @@
   </div>
 </div>
 
-<!-- Canvas dùng để render ảnh (ẩn) -->
 <div id="print-canvas-wrap"></div>
 
 <script>
-// ===================== DATA =====================
-const DAYS_SHORT = ['CN','T2','T3','T4','T5','T6','T7'];
-const SHIFTS = ['morning','afternoon','evening'];
-const SHIFT_LABEL = { morning: 'Sáng', afternoon: 'Chiều', evening: 'Tối' };
-const SHIFT_TIME  = { morning: '7:00–11:00', afternoon: '13:00–17:00', evening: '18:00–22:00' };
-const SHIFT_DEF   = { morning: {from:'07:00',to:'11:00'}, afternoon: {from:'13:00',to:'17:00'}, evening: {from:'18:00',to:'22:00'} };
+// ===================== CONSTANTS =====================
+const DAYS_SHORT  = ['CN','T2','T3','T4','T5','T6','T7'];
+const SHIFTS      = ['morning','afternoon','evening'];
+const SHIFT_LABEL = { morning:'Sáng', afternoon:'Chiều', evening:'Tối' };
+const SHIFT_TIME  = { morning:'7:00–11:00', afternoon:'13:00–17:00', evening:'18:00–22:00' };
+const SHIFT_DEF   = { morning:{from:'07:00',to:'11:00'}, afternoon:{from:'13:00',to:'17:00'}, evening:{from:'18:00',to:'22:00'} };
 const AV_BG = ['#EEEDFE','#E1F5EE','#FAECE7','#E6F1FB','#FAEEDA','#FBEAF0'];
 const AV_TX = ['#3C3489','#085041','#993C1D','#0C447C','#633806','#72243E'];
 
-let staff = [
-  {id:1, name:'Minh Anh'},
-  {id:2, name:'Tuấn Kiệt'},
-  {id:3, name:'Bảo Ngọc'},
-  {id:4, name:'Hữu Đức'},
-  {id:5, name:'Thu Hà'},
-];
-let nextId = 6;
-let schedule = {}; // { dateKey: { morning:[{staffId,from,to}], ... } }
+// ===================== STATE =====================
+let staff    = [];
+let nextId   = 1;
+let schedule = {};
 let weekOffset = 0, monthOffset = 0;
 let assignTarget = null;
+let db, fbRef, fbSet, fbOnValue;
+let isSaving = false;
+
+// ===================== SYNC UI =====================
+function setSyncBar(state, msg) {
+  const bar = document.getElementById('sync-bar');
+  bar.className = 'sync-bar ' + state;
+  document.getElementById('sync-msg').textContent = msg;
+}
+
+// ===================== FIREBASE SAVE / LISTEN =====================
+async function saveData() {
+  if (!db || isSaving) return;
+  isSaving = true;
+  setSyncBar('syncing', 'Đang lưu...');
+  try {
+    await fbSet(fbRef(db, 'hammy/staff'),    { list: staff, nextId });
+    await fbSet(fbRef(db, 'hammy/schedule'), schedule);
+    setSyncBar('ok', '✓ Đã lưu – tất cả nhân viên thấy lịch này theo thời gian thực');
+  } catch(e) {
+    setSyncBar('error', '❌ Lỗi lưu: ' + e.message);
+  } finally {
+    isSaving = false;
+  }
+}
+
+function listenFirebase() {
+  // Lắng nghe staff
+  fbOnValue(fbRef(db, 'hammy/staff'), snap => {
+    const val = snap.val();
+    if (val) {
+      staff  = val.list  || [];
+      nextId = val.nextId || (staff.length + 1);
+    } else {
+      // Lần đầu: seed data mặc định
+      staff  = [{id:1,name:'Minh Anh'},{id:2,name:'Tuấn Kiệt'},{id:3,name:'Bảo Ngọc'},{id:4,name:'Hữu Đức'},{id:5,name:'Thu Hà'}];
+      nextId = 6;
+      saveData();
+    }
+    renderWeek();
+    if (document.getElementById('view-staff').style.display !== 'none') renderStaff();
+  });
+
+  // Lắng nghe schedule
+  fbOnValue(fbRef(db, 'hammy/schedule'), snap => {
+    const val = snap.val();
+    schedule = val || {};
+    renderWeek();
+    if (document.getElementById('view-month').style.display !== 'none') renderMonth();
+    setSyncBar('ok', '✓ Kết nối Firebase – dữ liệu realtime');
+    document.getElementById('setup-notice').style.display = 'none';
+  });
+}
 
 // ===================== HELPERS =====================
 function dateKey(d) { return d.toISOString().slice(0,10); }
@@ -282,17 +390,10 @@ function getWeekDays(off) {
   mon.setHours(0,0,0,0);
   return Array.from({length:7}, (_,i) => { const d=new Date(mon); d.setDate(d.getDate()+i); return d; });
 }
-
 function initWeek(days) {
   days.forEach(d => {
     const k = dateKey(d);
-    if (!schedule[k]) {
-      schedule[k] = { morning:[], afternoon:[], evening:[] };
-      SHIFTS.forEach(sh => {
-        const def = SHIFT_DEF[sh];
-        staff.slice(0,2).forEach(s => schedule[k][sh].push({staffId:s.id, from:def.from, to:def.to}));
-      });
-    }
+    if (!schedule[k]) schedule[k] = { morning:[], afternoon:[], evening:[] };
   });
 }
 
@@ -302,22 +403,21 @@ function renderWeek() {
   initWeek(days);
   const today = new Date(); today.setHours(0,0,0,0);
   document.getElementById('week-label').textContent = `${fmtDate(days[0])} – ${fmtDate(days[6])}`;
-  document.getElementById('week-sub').textContent = weekOffset===0 ? 'Tuần này' : weekOffset<0 ? `${Math.abs(weekOffset)} tuần trước` : `${weekOffset} tuần sau`;
+  document.getElementById('week-sub').textContent   = weekOffset===0 ? 'Tuần này' : weekOffset<0 ? `${Math.abs(weekOffset)} tuần trước` : `${weekOffset} tuần sau`;
 
   days.forEach((d,i) => {
     const el = document.getElementById('h'+i);
-    const isToday = d.getTime()===today.getTime();
     el.textContent = DAYS_SHORT[d.getDay()] + ' ' + d.getDate();
-    el.className = 'sg-hcell' + (isToday?' is-today':'');
+    el.className = 'sg-hcell' + (d.getTime()===today.getTime()?' is-today':'');
   });
 
   SHIFTS.forEach(sh => {
     const row = document.getElementById('row-'+sh);
     row.querySelectorAll('.sg-cell').forEach(e=>e.remove());
-    days.forEach((d,i) => {
+    days.forEach((d) => {
       const isToday = d.getTime()===today.getTime();
       const k = dateKey(d);
-      const slots = schedule[k][sh] || [];
+      const slots = (schedule[k] && schedule[k][sh]) || [];
       const cell = document.createElement('div');
       cell.className = 'sg-cell' + (isToday?' is-today':'');
       slots.forEach((slot, si) => {
@@ -344,16 +444,18 @@ function renderWeek() {
   updateStats();
 }
 
-function removeAssign(k, sh, idx) {
+async function removeAssign(k, sh, idx) {
+  if (!schedule[k] || !schedule[k][sh]) return;
   schedule[k][sh].splice(idx, 1);
   renderWeek();
+  await saveData();
 }
 
 function openAssignModal(k, sh) {
   assignTarget = {k, sh};
   const def = SHIFT_DEF[sh];
   document.getElementById('inp-from').value = def.from;
-  document.getElementById('inp-to').value = def.to;
+  document.getElementById('inp-to').value   = def.to;
   const already = (schedule[k][sh]||[]).map(x=>x.staffId);
   const sel = document.getElementById('inp-assign-staff');
   sel.innerHTML = staff.filter(s=>!already.includes(s.id))
@@ -362,14 +464,16 @@ function openAssignModal(k, sh) {
   openModal('modal-assign');
 }
 
-function confirmAssign() {
-  const sid = parseInt(document.getElementById('inp-assign-staff').value);
+async function confirmAssign() {
+  const sid  = parseInt(document.getElementById('inp-assign-staff').value);
   const from = document.getElementById('inp-from').value;
   const to   = document.getElementById('inp-to').value;
   const {k, sh} = assignTarget;
   if (!schedule[k][sh]) schedule[k][sh] = [];
   schedule[k][sh].push({staffId:sid, from, to});
-  closeModals(); renderWeek();
+  closeModals();
+  renderWeek();
+  await saveData();
 }
 
 // ===================== RENDER MONTH =====================
@@ -381,22 +485,17 @@ function renderMonth() {
   const grid = document.getElementById('month-grid');
   grid.innerHTML = '';
   ['T2','T3','T4','T5','T6','T7','CN'].forEach(h => {
-    const el = document.createElement('div');
-    el.className = 'month-day-hd'; el.textContent = h;
-    grid.appendChild(el);
+    const el = document.createElement('div'); el.className='month-day-hd'; el.textContent=h; grid.appendChild(el);
   });
   const startDay = new Date(target.getFullYear(), target.getMonth(), 1).getDay();
-  for (let i=0; i<(startDay===0?6:startDay-1); i++) {
-    const b = document.createElement('div'); grid.appendChild(b);
-  }
+  for (let i=0; i<(startDay===0?6:startDay-1); i++) grid.appendChild(document.createElement('div'));
   const today = new Date(); today.setHours(0,0,0,0);
   for (let d=1; d<=last; d++) {
     const date = new Date(target.getFullYear(), target.getMonth(), d);
     const k = dateKey(date);
-    const isToday = date.getTime()===today.getTime();
     const total = SHIFTS.reduce((a,sh)=>a+(schedule[k]?schedule[k][sh].length:0), 0);
     const el = document.createElement('div');
-    el.className = 'month-day' + (isToday?' is-today':'');
+    el.className = 'month-day' + (date.getTime()===today.getTime()?' is-today':'');
     el.innerHTML = `<div class="day-num">${d}</div>${total?`<div class="day-ca">${total} ca</div>`:''}`;
     grid.appendChild(el);
   }
@@ -407,7 +506,7 @@ function renderStaff() {
   const c = document.getElementById('staff-grid');
   c.innerHTML = '';
   staff.forEach((s,i) => {
-    const ci = i % AV_BG.length;
+    const ci  = i % AV_BG.length;
     const ini = s.name.split(' ').map(w=>w[0]).slice(-2).join('');
     const shifts = Object.values(schedule).reduce((a,day)=>
       a+SHIFTS.reduce((b,sh)=>b+(day[sh]||[]).filter(x=>x.staffId===s.id).length, 0), 0);
@@ -421,13 +520,22 @@ function renderStaff() {
   });
 }
 
-function removeStaff(id) {
+async function addStaff() {
+  const name = document.getElementById('inp-name').value.trim();
+  if (!name) { alert('Vui lòng nhập tên!'); return; }
+  staff.push({id: nextId++, name});
+  closeModals(); renderStaff(); renderWeek();
+  await saveData();
+}
+
+async function removeStaff(id) {
   if (!confirm('Xoá nhân viên này?')) return;
   staff = staff.filter(s=>s.id!==id);
   Object.values(schedule).forEach(day => SHIFTS.forEach(sh => {
     day[sh] = (day[sh]||[]).filter(x=>x.staffId!==id);
   }));
   renderStaff(); renderWeek();
+  await saveData();
 }
 
 function updateStats() {
@@ -437,13 +545,34 @@ function updateStats() {
   days.forEach(d => {
     const k = dateKey(d);
     SHIFTS.forEach(sh => {
-      const cnt = schedule[k]?schedule[k][sh].length:0;
+      const cnt = schedule[k] ? schedule[k][sh].length : 0;
       total += cnt; if (cnt<2) missing++;
     });
   });
-  document.getElementById('st-shifts').textContent = total;
+  document.getElementById('st-shifts').textContent  = total;
   document.getElementById('st-missing').textContent = missing;
 }
+
+// ===================== NAVIGATION =====================
+function prevWeek()  { weekOffset--;  renderWeek(); }
+function nextWeek()  { weekOffset++;  renderWeek(); }
+function prevMonth() { monthOffset--; renderMonth(); }
+function nextMonth() { monthOffset++; renderMonth(); }
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('view-week').style.display  = tab==='week'  ? 'block':'none';
+  document.getElementById('view-month').style.display = tab==='month' ? 'block':'none';
+  document.getElementById('view-staff').style.display = tab==='staff' ? 'block':'none';
+  if (tab==='month') renderMonth();
+  if (tab==='staff') renderStaff();
+}
+
+// ===================== MODAL =====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModals() { document.querySelectorAll('.overlay').forEach(e=>e.classList.remove('open')); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e=>{ if(e.target===o) closeModals(); }));
 
 // ===================== EXPORT ẢNH =====================
 function openExport() {
@@ -452,48 +581,32 @@ function openExport() {
   document.getElementById('preview-img').style.display = 'none';
   document.getElementById('download-link').style.display = 'none';
 
-  // Build HTML bảng lịch để chụp
-  const days = getWeekDays(weekOffset);
+  const days  = getWeekDays(weekOffset);
   const today = new Date(); today.setHours(0,0,0,0);
-
-  // Tạo element ẩn để render
-  const wrap = document.getElementById('print-canvas-wrap');
+  const wrap  = document.getElementById('print-canvas-wrap');
   wrap.innerHTML = '';
-
   const tbl = document.createElement('div');
-  tbl.style.cssText = `
-    width:900px; background:#fff; font-family:Arial,sans-serif;
-    border-radius:0; overflow:hidden;
-  `;
+  tbl.style.cssText = 'width:900px;background:#fff;font-family:Arial,sans-serif;overflow:hidden;';
 
-  // Header quán
   const hdr = document.createElement('div');
   hdr.style.cssText = 'background:#1a1a1a;color:#fff;padding:16px 20px;';
-  hdr.innerHTML = `
-    <div style="font-size:17px;font-weight:700;">☕ Lịch làm việc quán cafe</div>
+  hdr.innerHTML = `<div style="font-size:17px;font-weight:700;">☕ Lịch làm việc quán cafe Ha My</div>
     <div style="font-size:12px;color:#aaa;margin-top:4px;">Tuần: ${fmtDate(days[0])} – ${fmtDate(days[6])} &nbsp;|&nbsp; Tạo lúc: ${new Date().toLocaleString('vi-VN')}</div>`;
   tbl.appendChild(hdr);
 
-  // Legend
   const leg = document.createElement('div');
-  leg.style.cssText = 'display:flex;gap:20px;padding:10px 20px;background:#f8f8f8;border-bottom:1px solid #e0e0e0;flex-wrap:wrap;';
+  leg.style.cssText = 'display:flex;gap:20px;padding:10px 20px;background:#f8f8f8;border-bottom:1px solid #e0e0e0;';
   leg.innerHTML = `
-    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
-      <span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block"></span>Ca sáng 7:00–11:00</span>
-    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
-      <span style="width:10px;height:10px;border-radius:2px;background:#97C459;display:inline-block"></span>Ca chiều 13:00–17:00</span>
-    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555">
-      <span style="width:10px;height:10px;border-radius:2px;background:#85B7EB;display:inline-block"></span>Ca tối 18:00–22:00</span>`;
+    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555"><span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block"></span>Ca sáng 7:00–11:00</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555"><span style="width:10px;height:10px;border-radius:2px;background:#97C459;display:inline-block"></span>Ca chiều 13:00–17:00</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#555"><span style="width:10px;height:10px;border-radius:2px;background:#85B7EB;display:inline-block"></span>Ca tối 18:00–22:00</span>`;
   tbl.appendChild(leg);
 
-  // Table
   const table = document.createElement('table');
   table.style.cssText = 'width:100%;border-collapse:collapse;font-size:11px;';
-
-  // THead
   const thead = document.createElement('thead');
-  const trh = document.createElement('tr');
-  trh.innerHTML = `<th style="background:#f0f0f0;padding:9px 8px;text-align:left;border:1px solid #ddd;width:90px;font-size:11px;color:#555">Ca</th>`;
+  const trh   = document.createElement('tr');
+  trh.innerHTML = `<th style="background:#f0f0f0;padding:9px 8px;text-align:left;border:1px solid #ddd;width:90px;color:#555">Ca</th>`;
   days.forEach(d => {
     const isT = d.getTime()===today.getTime();
     trh.innerHTML += `<th style="background:${isT?'#dbeeff':'#f0f0f0'};padding:9px 5px;text-align:center;border:1px solid #ddd;color:${isT?'#185FA5':'#333'};font-size:11px;">
@@ -501,112 +614,75 @@ function openExport() {
   });
   thead.appendChild(trh); table.appendChild(thead);
 
-  // TBody
   const tbody = document.createElement('tbody');
-  const shiftColors = {
-    morning:  {bg:'#FAEEDA', tx:'#854F0B', rowBg:'#fffbf5', labelBg:'#fdf0d5'},
-    afternoon:{bg:'#EAF3DE', tx:'#3B6D11', rowBg:'#f7fbf2', labelBg:'#dff0c5'},
-    evening:  {bg:'#E6F1FB', tx:'#185FA5', rowBg:'#f4f9ff', labelBg:'#c8e0f8'},
-  };
+  const sc = { morning:{bg:'#FAEEDA',tx:'#854F0B',rowBg:'#fffbf5',lBg:'#fdf0d5'}, afternoon:{bg:'#EAF3DE',tx:'#3B6D11',rowBg:'#f7fbf2',lBg:'#dff0c5'}, evening:{bg:'#E6F1FB',tx:'#185FA5',rowBg:'#f4f9ff',lBg:'#c8e0f8'} };
   SHIFTS.forEach(sh => {
-    const sc = shiftColors[sh];
+    const c = sc[sh];
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="background:${sc.labelBg};padding:10px 8px;border:1px solid #ddd;font-weight:700;color:${sc.tx};vertical-align:top;">
+    tr.innerHTML = `<td style="background:${c.lBg};padding:10px 8px;border:1px solid #ddd;font-weight:700;color:${c.tx};vertical-align:top;">
       ${SHIFT_LABEL[sh]}<br/><span style="font-size:9px;font-weight:400;color:#999">${SHIFT_TIME[sh]}</span></td>`;
     days.forEach(d => {
       const k = dateKey(d);
       const slots = (schedule[k]&&schedule[k][sh]) || [];
       const isT = d.getTime()===today.getTime();
-      let inner = '';
-      if (!slots.length) {
-        inner = `<span style="color:#ccc;font-size:10px;">–</span>`;
-      } else {
-        slots.forEach(slot => {
-          const s = staff.find(x=>x.id===slot.staffId);
-          if (!s) return;
-          const def = SHIFT_DEF[sh];
-          const showTime = (slot.from!==def.from||slot.to!==def.to);
-          inner += `<div style="background:${sc.bg};color:${sc.tx};border-radius:3px;padding:3px 6px;margin:2px 0;font-size:10px;font-weight:600;display:inline-block;">
-            ${s.name.split(' ').pop()}${showTime?`<br/><span style="font-size:9px;font-weight:400;opacity:.8">${slot.from}–${slot.to}</span>`:''}
-          </div> `;
-        });
-      }
-      tr.innerHTML += `<td style="background:${isT?'rgba(24,95,165,0.04)':sc.rowBg};padding:8px 5px;border:1px solid #ddd;vertical-align:top;text-align:center;min-height:70px">${inner}</td>`;
+      let inner = slots.length === 0 ? `<span style="color:#ccc;font-size:10px;">–</span>` : '';
+      slots.forEach(slot => {
+        const s = staff.find(x=>x.id===slot.staffId);
+        if (!s) return;
+        const def = SHIFT_DEF[sh];
+        const showTime = (slot.from!==def.from||slot.to!==def.to);
+        inner += `<div style="background:${c.bg};color:${c.tx};border-radius:3px;padding:3px 6px;margin:2px 0;font-size:10px;font-weight:600;display:inline-block;">
+          ${s.name.split(' ').pop()}${showTime?`<br/><span style="font-size:9px;font-weight:400;opacity:.8">${slot.from}–${slot.to}</span>`:''}
+        </div> `;
+      });
+      tr.innerHTML += `<td style="background:${isT?'rgba(24,95,165,0.04)':c.rowBg};padding:8px 5px;border:1px solid #ddd;vertical-align:top;text-align:center;">${inner}</td>`;
     });
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
   tbl.appendChild(table);
 
-  // Footer
   const foot = document.createElement('div');
   foot.style.cssText = 'background:#fafafa;border-top:1px solid #e0e0e0;padding:8px 20px;font-size:10px;color:#aaa;text-align:right;';
-  foot.textContent = `Lịch làm việc quán cafe – Xuất ${new Date().toLocaleString('vi-VN')}`;
+  foot.textContent = `Lịch làm việc quán cafe Ha My – Xuất ${new Date().toLocaleString('vi-VN')}`;
   tbl.appendChild(foot);
-
   wrap.appendChild(tbl);
 
-  // Chụp ảnh bằng html2canvas
   setTimeout(() => {
-    html2canvas(tbl, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-    }).then(canvas => {
+    html2canvas(tbl, {scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false})
+    .then(canvas => {
       const dataUrl = canvas.toDataURL('image/png');
       const img = document.getElementById('preview-img');
-      img.src = dataUrl;
-      img.style.display = 'block';
-      document.getElementById('loading-msg').style.display = 'none';
-
-      // Gán link tải
+      img.src = dataUrl; img.style.display='block';
+      document.getElementById('loading-msg').style.display='none';
       const dl = document.getElementById('download-link');
-      const fname = `lich-lam-viec-${fmtDate(days[0]).replace(/\//g,'-')}_den_${fmtDate(days[6]).replace(/\//g,'-')}.png`;
       dl.href = dataUrl;
-      dl.download = fname;
-      dl.style.display = 'inline-block';
-    }).catch(err => {
-      console.error(err);
-      document.getElementById('loading-msg').textContent = 'Lỗi tạo ảnh. Vui lòng thử lại!';
-    });
+      dl.download = `lich-lam-viec-${fmtDate(days[0]).replace(/\//g,'-')}_den_${fmtDate(days[6]).replace(/\//g,'-')}.png`;
+      dl.style.display='inline-block';
+    }).catch(() => { document.getElementById('loading-msg').textContent='Lỗi tạo ảnh. Vui lòng thử lại!'; });
   }, 100);
 }
 
-// ===================== MODAL & NAV =====================
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModals() {
-  document.querySelectorAll('.overlay').forEach(e => e.classList.remove('open'));
-}
-// Click overlay ngoài để đóng
-document.querySelectorAll('.overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if(e.target===overlay) closeModals(); });
+// ===================== INIT =====================
+document.addEventListener('firebase-ready', () => {
+  db        = window._fbDb;
+  fbRef     = window._fbRef;
+  fbSet     = window._fbSet;
+  fbOnValue = window._fbOnValue;
+  setSyncBar('syncing', 'Đang kết nối Firebase Realtime Database...');
+  listenFirebase();
 });
 
-function addStaff() {
-  const name = document.getElementById('inp-name').value.trim();
-  if (!name) { alert('Vui lòng nhập tên!'); return; }
-  staff.push({id: nextId++, name});
-  closeModals(); renderStaff();
-}
-
-function prevWeek() { weekOffset--; renderWeek(); }
-function nextWeek() { weekOffset++; renderWeek(); }
-function prevMonth() { monthOffset--; renderMonth(); }
-function nextMonth() { monthOffset++; renderMonth(); }
-
-function switchTab(tab, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('view-week').style.display  = tab==='week'  ? 'block' : 'none';
-  document.getElementById('view-month').style.display = tab==='month' ? 'block' : 'none';
-  document.getElementById('view-staff').style.display = tab==='staff' ? 'block' : 'none';
-  if (tab==='month') renderMonth();
-  if (tab==='staff') renderStaff();
-}
-
-// ===================== INIT =====================
-renderWeek();
+// Fallback nếu Firebase chưa được config
+setTimeout(() => {
+  if (!db) {
+    setSyncBar('error', '⚠️ Firebase chưa được cấu hình – Xem hướng dẫn trong file HUONG_DAN_FIREBASE.md');
+    // Chạy offline với data mặc định
+    staff  = [{id:1,name:'Minh Anh'},{id:2,name:'Tuấn Kiệt'},{id:3,name:'Bảo Ngọc'},{id:4,name:'Hữu Đức'},{id:5,name:'Thu Hà'}];
+    nextId = 6;
+    renderWeek();
+  }
+}, 3000);
 </script>
 </body>
 </html>
