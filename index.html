@@ -340,7 +340,7 @@ async function saveData() {
   saving=false;
 }
 
-// ── POLLING THÔNG MINH: chỉ kéo data khi có thay đổi thật ──
+// ── POLLING THÔNG MINH: check version (vài bytes), kéo data chỉ khi có thay đổi ──
 async function pollOnce() {
   if (saving) return;
   try {
@@ -349,10 +349,19 @@ async function pollOnce() {
       lastVer = ver;
       const data = await dbRead();
       applyData(data, true);
-      setSyncBar('ok', '🔄 Cập nhật từ thiết bị khác');
-      setTimeout(()=>setSyncBar('ok','✓ Đang đồng bộ – 10 giây/lần'),2000);
+      setSyncBar('ok', '🔄 Vừa cập nhật từ thiết bị khác');
+      setTimeout(()=>setSyncBar('ok','✓ Đang đồng bộ tự động'),2000);
     }
   } catch(e) { /* silent */ }
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(pollOnce, 3000); // check mỗi 3 giây
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer=null; }
 }
 
 function applyData(data, cache=true) {
@@ -363,6 +372,16 @@ function applyData(data, cache=true) {
   if (document.getElementById('view-staff').style.display!=='none') renderStaff();
   if (document.getElementById('view-month').style.display!=='none') renderMonth();
 }
+
+// ── VISIBILITY: sync ngay khi quay lại tab/app ──
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    pollOnce();        // sync ngay lập tức
+    startPolling();    // tiếp tục poll nhanh
+  } else {
+    stopPolling();     // tab ẩn → dừng poll, tiết kiệm pin/data
+  }
+});
 
 // ── INIT: hiển thị cache ngay, sync ngầm ──
 async function init() {
@@ -383,19 +402,18 @@ async function init() {
 
   document.getElementById('setup-box').style.display='none';
 
-  // 2. Kéo data thật từ JSONBin (không cần load SDK — rất nhanh)
+  // 2. Kéo data thật từ JSONBin
   try {
     const data = await dbRead();
     if (!data.staff || !data.staff.length) {
-      // Lần đầu: seed nhân viên mặc định
       staff=[{id:1,name:'Minh Anh'},{id:2,name:'Tuấn Kiệt'},{id:3,name:'Bảo Ngọc'},{id:4,name:'Hữu Đức'},{id:5,name:'Thu Hà'}];
       nextId=6; schedule={}; await saveData();
     } else {
       applyData(data);
-      setSyncBar('ok', '✓ Kết nối thành công – dữ liệu dùng chung');
+      setSyncBar('ok', '✓ Kết nối thành công – tự cập nhật mỗi 3 giây');
     }
-    // 3. Polling nhẹ: check version mỗi 10 giây, chỉ kéo data nếu có thay đổi
-    pollTimer = setInterval(pollOnce, 10000);
+    // 3. Bật polling 3 giây
+    startPolling();
   } catch(e) {
     setSyncBar('error', '⚠️ Không kết nối được ('+e.message+')');
   }
