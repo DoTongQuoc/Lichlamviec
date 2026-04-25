@@ -142,10 +142,7 @@
 <div class="container">
 
   <div class="setup-box" id="setup-box">
-    ⚙️ <b>Setup 2 phút — chỉ cần điền 2 dòng vào file index.html</b>
-    1. Vào <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → Đăng ký miễn phí → Mục <b>API Keys</b> → Copy key (bắt đầu bằng <code>$2b$...</code>)<br>
-    2. Bấm <b>Create Bin</b> → nhập nội dung: <code>{"staff":[],"nextId":1,"schedule":{}}</code> → Save → Copy <b>Bin ID</b><br>
-    3. Mở <code>index.html</code>, tìm <code>JSONBIN_KEY</code> và <code>JSONBIN_BIN_ID</code> → điền vào → lưu → deploy lại Vercel
+    ⚙️ <b>FROM ĐTQ WITH LOVE ®️</b>
   </div>
 
   <div class="sync-bar syncing" id="sync-bar">
@@ -155,7 +152,7 @@
 
   <div class="topbar">
     <div>
-      <div class="app-title">☕ Lịch làm việc Ha My 1123</div>
+      <div class="app-title">☕ Lịch làm việc Coffee Hà My</div>
       <div class="app-sub" id="week-sub"></div>
     </div>
     <div class="btn-row">
@@ -189,9 +186,9 @@
         <div class="sg-hcell" id="h4"></div><div class="sg-hcell" id="h5"></div>
         <div class="sg-hcell" id="h6"></div>
       </div>
-      <div class="sg-row" id="row-morning"><div class="sg-label">Sáng<small>7:00–11:00</small></div></div>
-      <div class="sg-row" id="row-afternoon"><div class="sg-label">Chiều<small>13:00–17:00</small></div></div>
-      <div class="sg-row" id="row-evening"><div class="sg-label">Tối<small>18:00–22:00</small></div></div>
+      <div class="sg-row" id="row-morning"><div class="sg-label">Sáng<small>6:00–12:00</small></div></div>
+      <div class="sg-row" id="row-afternoon"><div class="sg-label">Chiều<small>12:00–18:00</small></div></div>
+      <div class="sg-row" id="row-evening"><div class="sg-label">Tối<small>18:00–22:30</small></div></div>
     </div></div></div>
   </div>
 
@@ -503,7 +500,7 @@ function renderMonth() {
   document.getElementById('month-label').textContent=t.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
   const last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();
   const grid=document.getElementById('month-grid'); grid.innerHTML='';
-  ['T2','T3','T4','T5','T6','T7','CN'].forEach(h=>{const e=document.createElement('div');e.className='month-day-hd';e.textContent=h;grid.appendChild(e);});
+  ['T2 - ','T3 - ','T4 - ','T5 - ','T6 - ','T7 - ','CN - '].forEach(h=>{const e=document.createElement('div');e.className='month-day-hd';e.textContent=h;grid.appendChild(e);});
   const sd=new Date(t.getFullYear(),t.getMonth(),1).getDay();
   for(let i=0;i<(sd===0?6:sd-1);i++) grid.appendChild(document.createElement('div'));
   const today=new Date(); today.setHours(0,0,0,0);
@@ -586,7 +583,7 @@ async function openExport() {
   let h=`<div style="background:#1a1a1a;color:#fff;padding:16px 20px"><div style="font-size:17px;font-weight:700">☕ Lịch làm việc quán cafe Ha My</div>
     <div style="font-size:12px;color:#aaa;margin-top:4px">Tuần: ${fmtDate(days[0])} – ${fmtDate(days[6])} | ${new Date().toLocaleString('vi-VN')}</div></div>
     <div style="display:flex;gap:20px;padding:10px 20px;background:#f8f8f8;border-bottom:1px solid #e0e0e0;font-size:11px;color:#555">
-      <span>🟠 Sáng 7–11h</span><span>🟢 Chiều 13–17h</span><span>🔵 Tối 18–22h</span></div>
+      <span>🟠 Sáng 6–12h</span><span>🟢 Chiều 12–18h</span><span>🔵 Tối 18–22h30</span></div>
     <table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr>
     <th style="background:#f0f0f0;padding:9px 8px;text-align:left;border:1px solid #ddd;width:90px;color:#555">Ca</th>`;
   days.forEach(d=>{const isT=d.getTime()===today.getTime();
@@ -618,7 +615,7 @@ async function openExport() {
       document.getElementById('loading-msg').style.display='none';
       const dl=document.getElementById('download-link');
       dl.href=url; dl.download=`lich-${fmtDate(days[0]).replace(/\//g,'-')}.png`; dl.style.display='inline-block';
-    }).catch(()=>{document.getElementById('loading-msg').textContent='Lỗi tạo ảnh, thử lại!';});
+    }).catch(()=>{document.getElementById('loading-msg').textContent='Lỗi tạo ảnh,thử lại hoặc hỏi ĐTQ!';});
   },100);
 }
 
