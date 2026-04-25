@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>☕ Lịch làm việc Ha My</title>
+  <title>☕ Lịch làm việc Coffee Hà My</title>
   <!-- html2canvas chỉ load khi bấm Lưu ảnh — không làm chậm app -->
   <script>
     window._loadH2C = () => new Promise((res,rej) => {
@@ -169,9 +169,9 @@
 
   <div id="view-week">
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>Sáng 7:00–11:00</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#97C459"></div>Chiều 13:00–17:00</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#85B7EB"></div>Tối 18:00–22:00</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>Sáng 6:00–12:00</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#97C459"></div>Chiều 12:00–18:00</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#85B7EB"></div>Tối 18:00–22:30</div>
     </div>
     <div class="nav-row">
       <button class="btn" onclick="prevWeek()">← Tuần trước</button>
@@ -267,11 +267,11 @@ const H_GET      = { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' };
 const H_PUT      = { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY };
 const H_META     = { 'X-Master-Key': JSONBIN_KEY };
 
-const DAYS   = ['CN','T2','T3','T4','T5','T6','T7'];
+const DAYS   = ['CN - ','T2 - ','T3 - ','T4 - ','T5 - ','T6 - ','T7 - '];
 const SHIFTS = ['morning','afternoon','evening'];
 const SH_LABEL = { morning:'Sáng', afternoon:'Chiều', evening:'Tối' };
-const SH_TIME  = { morning:'7:00–11:00', afternoon:'13:00–17:00', evening:'18:00–22:00' };
-const SH_DEF   = { morning:{from:'07:00',to:'11:00'}, afternoon:{from:'13:00',to:'17:00'}, evening:{from:'18:00',to:'22:00'} };
+const SH_TIME  = { morning:'6:00–12:00', afternoon:'12:00–18:00', evening:'18:00–22:30' };
+const SH_DEF   = { morning:{from:'06:00',to:'12:00'}, afternoon:{from:'12:00',to:'18:00'}, evening:{from:'18:00',to:'22:30'} };
 const AV_BG = ['#EEEDFE','#E1F5EE','#FAECE7','#E6F1FB','#FAEEDA','#FBEAF0'];
 const AV_TX = ['#3C3489','#085041','#993C1D','#0C447C','#633806','#72243E'];
 const CK = 'hammy_v2';
@@ -500,7 +500,7 @@ function renderMonth() {
   document.getElementById('month-label').textContent=t.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
   const last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();
   const grid=document.getElementById('month-grid'); grid.innerHTML='';
-  ['T2 - ','T3 - ','T4 - ','T5 - ','T6 - ','T7 - ','CN - '].forEach(h=>{const e=document.createElement('div');e.className='month-day-hd';e.textContent=h;grid.appendChild(e);});
+  ['T2','T3','T4','T5','T6','T7','CN'].forEach(h=>{const e=document.createElement('div');e.className='month-day-hd';e.textContent=h;grid.appendChild(e);});
   const sd=new Date(t.getFullYear(),t.getMonth(),1).getDay();
   for(let i=0;i<(sd===0?6:sd-1);i++) grid.appendChild(document.createElement('div'));
   const today=new Date(); today.setHours(0,0,0,0);
